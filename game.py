@@ -5,8 +5,8 @@ import sys
 import random
 
 
-X = 2
-Y = 2
+X = 15
+Y = 15
 num_of_mines = min(X, Y)
 
 
