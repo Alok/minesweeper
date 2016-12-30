@@ -3,14 +3,12 @@
 
 import sys
 import random
-import os
-import urwid
 
-sys.setrecursionlimit(10000)
 
-X = 5
-Y = 5
-num_of_mines = min(X,Y)
+X = 2
+Y = 2
+num_of_mines = min(X, Y)
+
 
 def pick_square():
     x_coord = input("type x coordinate between 0 and %s: " % (X - 1))
@@ -29,12 +27,10 @@ def pick_square():
 
 
 class Board():
-    def __init__(self, X, Y):
-        self.width = X
-        self.height = Y
 
-        self.squares = [(x, y) for x in range(self.width)
-                        for y in range(self.height)]
+    def __init__(self):
+
+        self.squares = [(x, y) for x in range(X) for y in range(Y)]
         self.visible_squares = []
         self.visible_show = {}
         # copy rather than "link" `squares` to avoid later annoyance
@@ -42,50 +38,49 @@ class Board():
         self.mines = random.sample(self.squares, num_of_mines)
 
     def update(self, sq):
-        # add check that square exists in hidden or visible
-        # change visible squares, set hidden to complement
-        to_be_revealed = []
+        # update hidden
+        # update visible
 
         num_adj_mines = len(
             [pt for pt in self.neighbors(sq) if pt in self.mines])
 
-        if num_adj_mines >= 1:
-            if sq in self.hidden_squares:
-                # remove from hidden
-                self.hidden_squares.remove(sq)
-            # move that point to visible
+        self.visible_show[sq] = num_adj_mines
+
+        if sq in self.hidden_squares:
+            self.hidden_squares.remove(sq)
+        if sq not in self.visible_squares:
             self.visible_squares.append(sq)
-            self.visible_show[sq] = num_adj_mines
-        else:
-            for neighbor in self.neighbors(sq):
+        if num_adj_mines == 0:
+            for neighbor in (set(self.hidden_squares) & set(self.neighbors(sq))):
                 self.update(neighbor)
-                if sq in self.hidden_squares:
-                    self.hidden_squares.remove(sq)
 
     def draw(self):
         # show hidden as '_'
         # show others as 3rd
 
-
         # delim to draw board as an actual 2D grid
         board_string_rep = ""
-        for sq in self.squares:
-            delim = '\n' if sq[0] == X - 1 else ''
+        # i start with y (columns) because it makes placing newlines easier
+        for y in range(Y):
+            for x in range(X):
+                # draw sq
+                if (x, y) in self.hidden_squares:
+                    rep_char = '-'
+                elif (x, y) in self.visible_squares:
+                    if self.visible_show[(x, y)] == 0:
+                        rep_char = '_'
+                    else:
+                        rep_char = str(self.visible_show[(x, y)])
 
-            if sq in self.hidden_squares:
-                board_string_rep += '_' + delim
-            elif sq in self.visible_squares:
-                if self.visible_show[sq] == 0:
-                    board_string_rep += ' ' + delim
                 else:
-                    board_string_rep += ('%s' %
-                                         (self.visible_show[sq])) + delim
-            else:
-                print("error, shouldn't be possible")
-                sys.exit()
+                    print("error, shouldn't be possible")
+                    sys.exit()
+                board_string_rep += rep_char
+
+                if x == (X - 1):
+                    board_string_rep += "\n"
 
         print(board_string_rep)
-
 
     def neighbors(self, sq):
         """gets valid neighbors of a square """
@@ -94,11 +89,12 @@ class Board():
         return [pt for pt in candidates if pt in self.squares]
 
 
-
 def main():
 
-    board = Board(X, Y)
-    print(board.mines)
+    board = Board()
+
+    # Initial picture so we can see what we're up against.
+    board.draw()
 
     while True:
         choice = pick_square()
@@ -116,6 +112,7 @@ def main():
                 print("You win. Cue slow clap")
                 break
             board.draw()
+
 
 if __name__ == '__main__':
     main()
