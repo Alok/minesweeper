@@ -12,10 +12,9 @@ X = 10
 Y = 10
 num_of_mines = X
 
-
 def pick_square():
-    x_coord = input("type x coordinate between 0 and %s: " % X)
-    y_coord = input("type y coordinate between 0 and %s: " % Y)
+    x_coord = input("type x coordinate between 0 and %s: " % (X - 1))
+    y_coord = input("type y coordinate between 0 and %s: " % (Y - 1))
     try:
         x = int(x_coord)
         y = int(y_coord)
