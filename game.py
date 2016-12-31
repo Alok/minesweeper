@@ -91,6 +91,12 @@ class Board():
 
 def main():
 
+    name = input('Enter name: ')
+
+    if name.lower() == 'alex':
+        print("You lose.")
+        return
+
     board = Board()
 
     # Initial picture so we can see what we're up against.
@@ -101,16 +107,16 @@ def main():
 
         if choice in board.mines:
             print("Sucks to be you. Game over.")
-            break
+            return
 
         if set(board.hidden_squares) == set(board.mines):
             print("You win. Cue slow clap")
-            break
+            return
         else:
             board.update(choice)
             if set(board.hidden_squares) == set(board.mines):
                 print("You win. Cue slow clap")
-                break
+                return
             board.draw()
 
 
